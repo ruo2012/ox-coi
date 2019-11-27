@@ -45,7 +45,9 @@ import 'package:ox_coi/src/utils/keyMapping.dart';
 
 const realEmail = 'enyakam@ox.com';
 
-const fakeEmail = 'enyakam3@ox.com3';
+const fakeInvalidEmail = 'enyakam3@ox.com3';
+
+const fakeValidEmail ='enyakam33@ox.com';
 
 const fakePassword = 'secret2';
 
