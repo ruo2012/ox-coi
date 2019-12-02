@@ -66,6 +66,7 @@ void main() {
   final outlook = find.text('Outlook');
   final yahoo = find.text('Yahoo');
   final mailbox = find.text('Mailbox.org');
+  final blankSpace = '';
   final settingsIncomplete = 'Account settings incomplete.';
   final loginProviderSignInText = 'Sign in with Debug (mobile-qa)';
 
@@ -95,10 +96,7 @@ void main() {
       );
     });
   });
-  //  Try to sign in without email an password.
-  /*  Try to sign in only whit email.
-          We temporary removed this case, which consist to check about credential
-          for syntax correct E-Mail Address (like carli3@google.com') and correct password.*/
+
   group('Choose provider before performing fake login', () {
     test(': Scroll and select the coiDebug provider.', () async {
       await setup.driver.scroll(find.text(mailCom), 0, -600, Duration(milliseconds: 500));
@@ -107,27 +105,27 @@ void main() {
     });
   });
 
-  group('Performing login without E-Mail or password', () {
-    test(': SIGN IN without E-Mail and password.', () async {
-      await getAuthentication(setup.driver, email, '', password, '', signInCaps);
+  group('Performing login without EMail or password.', () {
+    test(': SIGN IN without EMail and password.', () async {
+      await getAuthentication(setup.driver, email, blankSpace, password, blankSpace, signInCaps);
       await setup.driver.waitFor(errorMessage);
       await catchScreenshot(setup.driver, 'screenshots/withoutEmailAndPassword.png');
     });
 
-    test(': SIGN IN without E-Mail.', () async {
-      await getAuthentication(setup.driver, email, '', password, fakePassword, signInCaps);
+    test(': SIGN IN without EMail but with fake password.', () async {
+      await getAuthentication(setup.driver, email, blankSpace, password, fakePassword, signInCaps);
       await setup.driver.waitFor(errorMessage);
       await catchScreenshot(setup.driver, 'screenshots/withoutEmail.png');
     });
 
-    test(': SIGN IN without password.', () async {
-      await getAuthentication(setup.driver, email, fakeInvalidEmail, password, '', signInCaps);
+    test(': SIGN IN without password but with fake invalid EMail.', () async {
+      await getAuthentication(setup.driver, email, fakeInvalidEmail, password, blankSpace, signInCaps);
       await setup.driver.waitFor(errorMessage);
       await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
     });
 
-    test(': SIGN IN without password but with fake valid E-Mail.', () async {
-      await getAuthentication(setup.driver, email, fakeValidEmail, password, '', signInCaps);
+    test(': SIGN IN without password but with fake valid EMail.', () async {
+      await getAuthentication(setup.driver, email, fakeValidEmail, password, blankSpace, signInCaps);
       await setup.driver.waitFor(find.text(settingsIncomplete));
       await setup.driver.tap(find.text(ok));
       await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
@@ -135,33 +133,33 @@ void main() {
   });
 
   group('Performing login with fake login information', () {
-    test(': SIGN IN with fake invalid E-Mail and fake password.', () async {
+    test(': SIGN IN with fake invalid EMail and fake password.', () async {
       Invoker.current.heartbeat();
       await getAuthentication(setup.driver, email, fakeInvalidEmail, password, fakePassword, signInCaps);
       await setup.driver.waitFor(errorMessage);
     });
 
-    test(': SIGN IN with fake valid E-Mail and fake password.', () async {
+    test(': SIGN IN with fake valid EMail and fake password.', () async {
       await getAuthentication(setup.driver, email, fakeValidEmail, password, fakePassword, signInCaps);
       await setup.driver.waitFor(find.text('Login failed'));
       await setup.driver.tap(find.text(ok));
       await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
     });
 
-    test(': SIGN IN with fake invalid E-Mail and real password.', () async {
+    test(': SIGN IN with fake invalid EMail and real password.', () async {
       Invoker.current.heartbeat();
       await getAuthentication(setup.driver, email, fakeInvalidEmail, password, realPassword, signInCaps);
       await setup.driver.waitFor(errorMessage);
     });
 
-    test(': SIGN IN with fake valid E-Mail and real password.', () async {
+    test(': SIGN IN with fake valid EMail and real password.', () async {
       await getAuthentication(setup.driver, email, fakeValidEmail, password, realPassword, signInCaps);
       await setup.driver.waitFor(find.text('Login failed'));
       await setup.driver.tap(find.text(ok));
       await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
     });
 
-    test(': SIGN IN with real E-Mail and fake password.', () async {
+    test(': SIGN IN with real EMail and fake password.', () async {
       Invoker.current.heartbeat();
       await getAuthentication(setup.driver, email, realEmail, password, fakePassword, signInCaps);
       await setup.driver.tap(find.text(ok));
@@ -169,7 +167,7 @@ void main() {
   });
 
   group('Performing the login with real authentication informations', () {
-    test(': Login test: SIGN IN with realEmail and realPassword.', () async {
+    test(': Login test: SIGN IN with real EMail and real password.', () async {
       await getAuthentication(setup.driver, email, realEmail, password, realPassword, signInCaps);
       await catchScreenshot(setup.driver, 'screenshots/entered.png');
       Invoker.current.heartbeat();
