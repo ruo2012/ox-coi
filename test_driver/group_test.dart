@@ -172,8 +172,9 @@ void main() {
       await setup.driver.tap(find.text(newMe));
       await setup.driver.tap(find.byValueKey(keySearchReturnIconButton));
       await setup.driver.tap(find.byValueKey(keyChatAddGroupParticipantsCheckIcon));
-      await catchScreenshot(setup.driver, 'screenshots/newContactAdded2.png');
       await setup.driver.waitFor(find.text(groupParticipants));
+      await catchScreenshot(setup.driver, 'screenshots/newContactAdded2.png');
+
     });
 
     test('Check popupMenu.', () async {
@@ -197,8 +198,9 @@ void main() {
       await setup.driver.tap(find.byValueKey(keyChatNameText));
       await setup.driver.tap(find.byValueKey(keyChatProfileGroupDelete));
       await setup.driver.tap(find.byValueKey(keyConfirmationDialogPositiveButton));
-      await catchScreenshot(setup.driver, 'screenshots/leaveGroup.png');
       await setup.driver.waitForAbsent(find.text(newNameTestGroup));
+      await catchScreenshot(setup.driver, 'screenshots/leaveGroup.png');
+
     });
   });
 }
