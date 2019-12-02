@@ -114,10 +114,10 @@ void main() {
         keyContactChangeCheckFinder,
       );
       await catchScreenshot(setup.driver, 'screenshots/contactList.png');
+      navigateTo(setup.driver, chat);
     });
 
     test('Create group.', () async {
-      navigateTo(setup.driver, chat);
       await setup.driver.tap(createChatFinder);
       //  Tap Create group iconButton.
       await setup.driver.tap(find.byValueKey(keyChatCreateGroupAddIcon));
@@ -139,6 +139,7 @@ void main() {
   });
 
   group('Test group chat functionality:', () {
+
     test('Change edited group name', () async {
       await setup.driver.tap(find.text(testNameGroup));
       await setup.driver.tap(find.text(testNameGroup));
