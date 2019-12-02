@@ -46,18 +46,16 @@ import 'package:flutter_driver/flutter_driver.dart';
 import 'package:ox_coi/src/l10n/l.dart';
 import 'package:ox_coi/src/utils/keyMapping.dart';
 import 'package:test/test.dart';
-import 'package:test_api/src/backend/invoker.dart';
 
 import 'setup/global_consts.dart';
 import 'setup/helper_methods.dart';
 import 'setup/main_test_setup.dart';
 
 void main() {
-  // Setup for the test.
   Setup setup = new Setup(driver);
   setup.main();
 
-  //  SerializableFinder for the Ox coi welcome and provider page.
+  //  Identifiers for the welcome and provider page
   final welcomeMessage = find.text(L.getKey(L.welcome));
   final welcomeDescription = find.text(L.getKey(L.loginWelcome));
   final register = find.text(L.getKey(L.register).toUpperCase());
@@ -70,17 +68,18 @@ void main() {
   final settingsIncomplete = 'Account settings incomplete.';
   final loginProviderSignInText = 'Sign in with Debug (mobile-qa)';
 
-  //  SerializableFinder for Coi Debug dialog Windows.
+  //  Identifiers for login forms
   final signInCoiDebug = find.text(loginProviderSignInText);
   final email = find.byValueKey(keyProviderSignInEmailTextField);
   final password = find.byValueKey(keyProviderSignInPasswordTextField);
   final signInCaps = find.text(L.getKey(L.loginSignIn).toUpperCase());
   final errorMessage = find.text(L.getKey(L.loginCheckMail));
+
+  // Identifiers for the chat list
   final chatWelcome = find.text(L.getKey(L.chatListPlaceholder));
 
-  group('Performing welcome menu and provider list', () {
-    test(': Check welcome menu and provider list.', () async {
-      //  Test Ox.coi welcome screen and tap on SIGN In to get the provider list, and test if all provider are contained in the list.
+  group('Login preparations:', () {
+    test('Show welcome screen and provider list', () async {
       await checkOxCoiWelcomeAndProviderList(
         setup.driver,
         welcomeMessage,
@@ -95,87 +94,80 @@ void main() {
         mailbox,
       );
     });
-  });
 
-  group('Choose provider before performing fake login', () {
-    test(': Scroll and select the coiDebug provider.', () async {
+    test('Select provider', () async {
       await setup.driver.scroll(find.text(mailCom), 0, -600, Duration(milliseconds: 500));
       await selectAndTapProvider(setup.driver, find.text(coiDebug), signInCoiDebug, email, password);
-      await catchScreenshot(setup.driver, 'screenshots/CoiDebug.png');
+      await catchScreenshot(setup.driver, 'screenshots/providerDebug.png');
     });
   });
 
-  group('Performing login without EMail or password.', () {
-    test(': SIGN IN without EMail and password.', () async {
+  group('Failing logins (missing data):', () {
+    test('Login without email and password', () async {
       await getAuthentication(setup.driver, email, blankSpace, password, blankSpace, signInCaps);
       await setup.driver.waitFor(errorMessage);
       await catchScreenshot(setup.driver, 'screenshots/withoutEmailAndPassword.png');
     });
 
-    test(': SIGN IN without EMail but with fake password.', () async {
+    test('Login without email', () async {
       await getAuthentication(setup.driver, email, blankSpace, password, fakePassword, signInCaps);
       await setup.driver.waitFor(errorMessage);
       await catchScreenshot(setup.driver, 'screenshots/withoutEmail.png');
     });
 
-    test(': SIGN IN without password but with fake invalid EMail.', () async {
+    test('Login without password, with invalid email', () async {
       await getAuthentication(setup.driver, email, fakeInvalidEmail, password, blankSpace, signInCaps);
       await setup.driver.waitFor(errorMessage);
-      await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
+      await catchScreenshot(setup.driver, 'screenshots/withoutPasswordWithInvalidEmail.png');
     });
 
-    test(': SIGN IN without password but with fake valid EMail.', () async {
+    test('Login without password, with valid email', () async {
       await getAuthentication(setup.driver, email, fakeValidEmail, password, blankSpace, signInCaps);
       await setup.driver.waitFor(find.text(settingsIncomplete));
       await setup.driver.tap(find.text(ok));
-      await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
+      await catchScreenshot(setup.driver, 'screenshots/withoutPasswordValidEmail.png');
     });
   });
 
-  group('Performing login with fake login information', () {
-    test(': SIGN IN with fake invalid EMail and fake password.', () async {
-      Invoker.current.heartbeat();
+  group('Failing logins (wrong data):', () {
+    test('Login with invalid email, with wrong password', () async {
       await getAuthentication(setup.driver, email, fakeInvalidEmail, password, fakePassword, signInCaps);
       await setup.driver.waitFor(errorMessage);
+      await catchScreenshot(setup.driver, 'screenshots/withInvalidEmailWithWrongPassword.png');
     });
 
-    test(': SIGN IN with fake valid EMail and fake password.', () async {
+    test('Login with invalid email, with correct password', () async {
+      await getAuthentication(setup.driver, email, fakeInvalidEmail, password, realPassword, signInCaps);
+      await setup.driver.waitFor(errorMessage);
+      await catchScreenshot(setup.driver, 'screenshots/withInvalidEmailWithPassword.png');
+    });
+
+    test('Login with valid wrong email, with wrong password', () async {
       await getAuthentication(setup.driver, email, fakeValidEmail, password, fakePassword, signInCaps);
       await setup.driver.waitFor(find.text('Login failed'));
       await setup.driver.tap(find.text(ok));
-      await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
-    });
+      await catchScreenshot(setup.driver, 'screenshots/withWrongEmailWithWrongPassword.png');
+    }, timeout: Timeout(Duration(seconds: 60)));
 
-    test(': SIGN IN with fake invalid EMail and real password.', () async {
-      Invoker.current.heartbeat();
-      await getAuthentication(setup.driver, email, fakeInvalidEmail, password, realPassword, signInCaps);
-      await setup.driver.waitFor(errorMessage);
-    });
-
-    test(': SIGN IN with fake valid EMail and real password.', () async {
+    test('Login with valid wrong email, with correct password', () async {
       await getAuthentication(setup.driver, email, fakeValidEmail, password, realPassword, signInCaps);
       await setup.driver.waitFor(find.text('Login failed'));
       await setup.driver.tap(find.text(ok));
-      await catchScreenshot(setup.driver, 'screenshots/withoutPassword.png');
-    });
+      await catchScreenshot(setup.driver, 'screenshots/withWrongEmailWithPassword.png');
+    }, timeout: Timeout(Duration(seconds: 60)));
 
-    test(': SIGN IN with real EMail and fake password.', () async {
-      Invoker.current.heartbeat();
+    test('Login with correct email, with wrong password', () async {
       await getAuthentication(setup.driver, email, realEmail, password, fakePassword, signInCaps);
       await setup.driver.tap(find.text(ok));
+      await catchScreenshot(setup.driver, 'screenshots/withEmailWithWrongPassword.png');
     }, timeout: Timeout(Duration(seconds: 60)));
   });
 
-  group('Performing the login with real authentication informations', () {
-    test(': Login test: SIGN IN with real EMail and real password.', () async {
+  group('Successful logins:', () {
+    test('Login with correct email, with correct password', () async {
       await getAuthentication(setup.driver, email, realEmail, password, realPassword, signInCaps);
-      await catchScreenshot(setup.driver, 'screenshots/entered.png');
-      Invoker.current.heartbeat();
-      print('SIGN IN ist done. Wait for chat.');
       await setup.driver.waitFor(chatWelcome);
-      Invoker.current.heartbeat();
       await catchScreenshot(setup.driver, 'screenshots/chat.png');
-      print('Get chat.');
     });
   });
 }
@@ -197,7 +189,7 @@ Future checkOxCoiWelcomeAndProviderList(
   await driver.waitFor(register);
   await driver.tap(signInCaps);
 
-  //  Check if all providers are found in the list.
+  //  Check if all providers are in the list
   await driver.waitFor(outlook);
   await driver.waitFor(yahoo);
   await driver.waitFor(signIn);
@@ -233,5 +225,4 @@ Future getAuthentication(
   await driver.tap(password);
   await driver.enterText(realPassword);
   await driver.tap(signInCaps);
-  Invoker.current.heartbeat();
 }
