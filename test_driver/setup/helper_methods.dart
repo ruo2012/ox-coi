@@ -151,7 +151,6 @@ Future chatTest(
   SerializableFinder typeSomethingComposePlaceholder,
   String helloWord,
 ) async {
-  Invoker.current.heartbeat();
   await driver.tap(find.text(chatName));
   await writeChatFromChat(driver, helloWord);
   await catchScreenshot(driver, 'screenshots/$chatName.png');

@@ -65,7 +65,6 @@ void main() {
     //  Define the driver.
     FlutterDriver driver;
     Setup setup = new Setup(driver);
-    setup.main(timeout);
 
     final newTestName1Finder = find.text(newTestName01);
 

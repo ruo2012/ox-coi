@@ -50,23 +50,23 @@ import 'setup/helper_methods.dart';
 import 'setup/main_test_setup.dart';
 
 void main() {
-  group('Test group chat functionality.', () {
-    //  Define the driver.
-    FlutterDriver driver;
-    Setup setup = new Setup(driver);
-    setup.main();
+  //  Define the driver.
+  FlutterDriver driver;
+  Setup setup = new Setup(driver);
+  setup.main();
 
-    final testNameGroup = "TestGroup";
-    final newNameTestGroup = "NewNameTestGroup";
-    final keyMoreButton11 = "keyMoreButton_11";
-    final keyMoreButton10 = "keyMoreButton_10";
-    final popupItemInfo = "Info";
-    final popupItemRemove = "Remove from group";
-    final popupItemSendMessage = "Send message";
-    final searchNew = "new";
-    final groupParticipants = "3 participants";
+  final testNameGroup = "TestGroup";
+  final newNameTestGroup = "NewNameTestGroup";
+  final keyMoreButton11 = "keyMoreButton_11";
+  final keyMoreButton10 = "keyMoreButton_10";
+  final popupItemInfo = "Info";
+  final popupItemRemove = "Remove from group";
+  final popupItemSendMessage = "Send message";
+  final searchNew = "new";
+  final groupParticipants = "3 participants";
 
-    test('Test group chat functionality.', () async {
+  group('Test preparation:', () {
+    test('Get login.', () async {
       //  Check real authentication and get chat.
       await getAuthentication(
         setup.driver,
@@ -77,9 +77,13 @@ void main() {
         providerPasswordFinder,
         realPassword,
       );
-      Invoker.current.heartbeat();
+    });
+  });
 
+  group('Group preparation:', () {
+    test('Add contacts.', () async {
       await navigateTo(setup.driver, contacts);
+
       await setup.driver.tap(cancelFinder);
       // Add tree new contacts in the contact list.
       await addNewContact(
@@ -109,8 +113,10 @@ void main() {
         newTestContact03,
         keyContactChangeCheckFinder,
       );
-      await catchScreenshot(setup.driver, 'screenshots/group1.png');
+      await catchScreenshot(setup.driver, 'screenshots/contactList.png');
+    });
 
+    test('Create group.', () async {
       navigateTo(setup.driver, chat);
       await setup.driver.tap(createChatFinder);
       //  Tap Create group iconButton.
@@ -123,19 +129,19 @@ void main() {
       //  Check if the group has been really created, and add group's name.
       await setup.driver.waitFor(find.text(newTestName01));
       await setup.driver.waitFor(find.text(newTestName02));
-
-      //  Edit group's name.
+      //  Edit group name.
       await setup.driver.tap(find.byValueKey(keyChatCreateGroupSettingsGroupNameField));
       await setup.driver.enterText(testNameGroup);
       await setup.driver.tap(find.byValueKey(keyChatCreateGroupSettingCheckIconButton));
-      await catchScreenshot(setup.driver, 'screenshots/group2.png');
+      await catchScreenshot(setup.driver, 'screenshots/groupNameAfterEdited.png');
+      await setup.driver.tap(pageBack);
+    });
+  });
 
-      //  Type something and get it.
-      await setup.driver.waitFor(find.text(testNameGroup));
-      await setup.driver.tap(find.byValueKey(keyChatNameText));
-      await setup.driver.checkHealth();
-
-      //  Change the group's name.
+  group('Test group chat functionality:', () {
+    test('Change edited group name', () async {
+      await setup.driver.tap(find.text(testNameGroup));
+      await setup.driver.tap(find.text(testNameGroup));
       await setup.driver.tap(find.byValueKey(keyChatProfileGroupEditIcon));
       await setup.driver.tap(find.byValueKey(keyEditNameValidatableTextFormField));
       await setup.driver.enterText(newNameTestGroup);
@@ -143,6 +149,10 @@ void main() {
       await setup.driver.waitFor(find.text(newNameTestGroup));
       await setup.driver.tap(pageBack);
       await setup.driver.tap(pageBack);
+      await catchScreenshot(setup.driver, 'screenshots/newNameTestGroup.png');
+    });
+
+    test('Create group chat, type something and get it.', () async {
       await chatTest(
         setup.driver,
         newNameTestGroup,
@@ -150,9 +160,9 @@ void main() {
         helloWorld,
       );
       await setup.driver.tap(pageBack);
-      await catchScreenshot(setup.driver, 'screenshots/NewNameTestGroup2.png');
+    });
 
-      //  Add new Participants in the group and test.
+    test('Add new Participants in the group.', () async {
       await setup.driver.tap(find.text(newNameTestGroup));
       await setup.driver.tap(find.byValueKey(keyChatNameText));
       await setup.driver.tap(find.byValueKey(keyChatProfileGroupAddParticipant));
@@ -164,8 +174,9 @@ void main() {
       await setup.driver.tap(find.byValueKey(keyChatAddGroupParticipantsCheckIcon));
       await catchScreenshot(setup.driver, 'screenshots/newContactAdded2.png');
       await setup.driver.waitFor(find.text(groupParticipants));
+    });
 
-      //  Check popupMenu.
+    test('Check popupMenu.', () async {
       //  Test info menu
       await setup.driver.tap(find.byValueKey(keyMoreButton11));
       await setup.driver.tap(find.text(popupItemInfo));
@@ -179,13 +190,14 @@ void main() {
       await setup.driver.tap(find.text(popupItemSendMessage));
       await writeChatFromChat(setup.driver, helloWorld);
       await setup.driver.tap(pageBack);
+    });
 
-      //  Leave group.
+    test('Leave group.', () async {
       await setup.driver.tap(find.text(newNameTestGroup));
       await setup.driver.tap(find.byValueKey(keyChatNameText));
       await setup.driver.tap(find.byValueKey(keyChatProfileGroupDelete));
       await setup.driver.tap(find.byValueKey(keyConfirmationDialogPositiveButton));
-      await catchScreenshot(setup.driver, 'screenshots/leave.png');
+      await catchScreenshot(setup.driver, 'screenshots/leaveGroup.png');
       await setup.driver.waitForAbsent(find.text(newNameTestGroup));
     });
   });
