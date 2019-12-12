@@ -58,6 +58,7 @@ class MessageReceived extends StatelessWidget {
   Widget build(BuildContext context) {
     var contactStateData = messageStateData.contactStateData;
     var isGroup = messageStateData.isGroup;
+    var isForwarded = messageStateData.isForwarded;
     return FractionallySizedBox(
       alignment: Alignment.topLeft,
       widthFactor: 0.8,
@@ -101,6 +102,10 @@ class MessageReceived extends StatelessWidget {
                             ),
                           )
                         : Container(constraints: BoxConstraints(maxWidth: zero)),
+                    Visibility(
+                      visible: isForwarded,
+                      child: MessagePartForwarded(),
+                    ),
                     messageStateData.hasFile ? MessageAttachment() : MessageText(),
                   ],
                 ),
